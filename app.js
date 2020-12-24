@@ -3,6 +3,7 @@ const morgan = require('morgan');
 var cors = require('cors')
 // express app
 const app = express();
+var nodemailer = require('nodemailer');
 // listen for requests
 app.listen(3000);
 
@@ -18,6 +19,24 @@ var contactEntry = new Schema({
   time:String
 }, {
   collection: 'ContactUs'
+});
+
+var joinEntry = new Schema({
+    name:String,
+    dob:String,
+    email:String,
+    phone:String,
+    padd:String,
+    pcity:String,
+    pstate:String,
+    cadd:String,
+    ccity:String,
+    cstate:String,
+    bgrp:String,
+    category:String,
+    message:String,
+}, {
+  collection: 'JoinUs'
 });
 
 mongoose.connect("mongodb://localhost:27017/sharva-db",{useNewUrlParser: true, useUnifiedTopology: true});
@@ -47,6 +66,15 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 var Model = mongoose.model('Model', contactEntry);
+var joinModel = mongoose.model('Join', joinEntry);
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'contact.sharvafoundation@gmail.com',
+    pass: 'tanmay@123'
+  }
+});
+
 app.post('/insert',(req,res,next)=>{
   
   new Model({
@@ -61,11 +89,73 @@ app.post('/insert',(req,res,next)=>{
       res.json(err)
     }
     else{
+      var mailOptions = {
+        from: 'contact.sharvafoundation@gmail.com',
+        to: 'tanmayjagtap27@gmail.com',
+        subject: 'New Contact Entry',
+        text: 'Name: '+req.body.name+'\nEmail: '+req.body.email+'\nMessage: '+req.body.message
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
       res.statusCode=200
-      res.send("Successfully inserted")  
+      res.send("Contact us successfully inserted")  
     }
   })
 })
+
+
+app.post('/joinus',(req,res,next)=>{
+  
+  new joinModel({
+    name:req.body.name,
+    dob:req.body.dob,
+    email:req.body.email,
+    phone:req.body.phone,
+    padd:req.body.padd,
+    pcity:req.body.pcity,
+    pstate:req.body.pstate,
+    cadd:req.body.cadd,
+    ccity:req.body.ccity,
+    cstate:req.body.cstate,
+    bgrp:req.body.bgrp,
+    category:req.body.category,
+    message:req.body.message,
+    date: new Date(Date.now()).toLocaleString().split(',')[0],
+    time:new Date().toLocaleTimeString()
+  })
+  .save((err,doc)=>{
+    if(err){
+      res.json(err)
+    }
+    else{
+      var mailOptions = {
+        from: 'contact.sharvafoundation@gmail.com',
+        to: 'tanmayjagtap27@gmail.com',
+        subject: 'New Join Us Entry',
+        text: 'Name: '+req.body.name+'\nEmail: '+req.body.email+'\nPhone: '+req.body.phone+'\nMessage: '+req.body.message
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
+      res.statusCode=200
+      res.send("Join us successfully inserted")  
+    }
+  })
+})
+
 
 // 404 page
 app.use((req, res) => {
