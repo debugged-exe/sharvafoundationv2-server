@@ -5,7 +5,9 @@ var cors = require('cors')
 const app = express();
 var nodemailer = require('nodemailer');
 // listen for requests
-app.listen(3000);
+app.listen(3001, () => {
+  console.log("Server running on port 3001")
+});
 
 // register view engine
 app.set('view engine', 'ejs');
@@ -76,7 +78,6 @@ var transporter = nodemailer.createTransport({
 });
 
 app.post('/insert',(req,res,next)=>{
-  
   new Model({
     name:req.body.name,
     email:req.body.email,
@@ -104,15 +105,13 @@ app.post('/insert',(req,res,next)=>{
         }
       });
 
-      res.statusCode=200
-      res.send("Contact us successfully inserted")  
+      res.status(200).json("Success");
     }
   })
 })
 
 
 app.post('/joinus',(req,res,next)=>{
-  
   new joinModel({
     name:req.body.name,
     dob:req.body.dob,
@@ -132,7 +131,7 @@ app.post('/joinus',(req,res,next)=>{
   })
   .save((err,doc)=>{
     if(err){
-      res.json(err)
+      res.status(400).json(err)
     }
     else{
       var mailOptions = {
@@ -150,12 +149,10 @@ app.post('/joinus',(req,res,next)=>{
         }
       });
 
-      res.statusCode=200
-      res.send("Join us successfully inserted")  
+      res.status(200).json("Success");
     }
   })
 })
-
 
 // 404 page
 app.use((req, res) => {
