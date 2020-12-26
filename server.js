@@ -136,9 +136,9 @@ app.post('/joinus',(req,res,next)=>{
     else{
       var mailOptions = {
         from: 'contact.sharvafoundation@gmail.com',
-        to: 'tanmayjagtap27@gmail.com',
-        subject: 'New Join Us Entry',
-        text: 'Name: '+req.body.name+'\nEmail: '+req.body.email+'\nPhone: '+req.body.phone+'\nMessage: '+req.body.message
+        to: req.body.email,
+        subject: 'Welcome To Family',
+        text: 'Welcome To Sharva Foundation\nThanks For Joining.'
       };
 
       transporter.sendMail(mailOptions, function(error, info){
